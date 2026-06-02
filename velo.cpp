@@ -73,11 +73,10 @@ tempoUltimoEnvio = millis();
 
 if (WiFi.status() == WL_CONNECTED) {
 HTTPClient clienteHttp;
-clienteHttp.begin(urlServidor);
-clienteHttp.addHeader("Content-Type", "application/x-www-form-urlencoded");
-String dadosRequisicao = "velocidade=" + String(velocidadeKmh, 2) + "&rpm=" + String(rpm,
-2);
-int codigoRespostaHttp = clienteHttp.POST(dadosRequisicao);
+ clienteHttp.begin(urlServidor);
+ clienteHttp.addHeader("Content-Type", "application/x-www-form-urlencoded");
+ String dadosRequisicao = "velocidade=" + String(velocidadeKmh, 2) + "&rpm=" + String(rpm, 2);
+ int codigoRespostaHttp = clienteHttp.POST(dadosRequisicao);
 if (codigoRespostaHttp > 0) {
 String respostaServidor = clienteHttp.getString();
 Serial.println("Resposta: " + respostaServidor);
@@ -86,5 +85,15 @@ Serial.println("Resposta: " + respostaServidor);
 clienteHttp.end();
 }
 }
-delay(100);
+// reconectar WiFi se desconectado (opcional)
+if (WiFi.status() != WL_CONNECTED) {
+  static unsigned long lastTry = 0;
+  if (millis() - lastTry > 5000) {
+    lastTry = millis();
+    Serial.println("WiFi desconectado, tentando reconectar...");
+    WiFi.disconnect();
+    WiFi.begin(nomeRede, senhaRede);
+  }
+}
+
 }
