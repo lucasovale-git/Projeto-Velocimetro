@@ -2,9 +2,9 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char* nomeRede = "Alexandre";
-const char* senhaRede = "xawc8090";
-const String urlServidor = "http://172.19.243.39/projeto_sesi/salvar_dados.php";
+const char* nomeRede = "Sobrado 138";
+const char* senhaRede = "12345678";
+const String urlServidor = "http://192.168.100.6/Projeto-Velocimetro/salvar_dados.php";
 
 #define PINO_SENSOR_HALL 4
 

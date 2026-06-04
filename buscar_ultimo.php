@@ -1,22 +1,33 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-// buscar_ultimo.php
-// Retorna o último registro presente em dados.json
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "velodb";
 
-$file = __DIR__ . '/dados.json';
-if (!file_exists($file)) {
-	echo json_encode(["status" => "empty", "message" => "Nenhum dado encontrado"]);
-	exit;
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+if (!$conn) {
+    echo json_encode(["status" => "error", "message" => "Connection failed"]);
+    exit;
 }
 
-$content = file_get_contents($file);
-$data = json_decode($content, true);
-if (!is_array($data) || count($data) === 0) {
-	echo json_encode(["status" => "empty", "message" => "Nenhum dado disponível"]);
-	exit;
+// Busca apenas o último registro inserido
+$sql = "SELECT velocidade, rpm, timestamp FROM velotabe ORDER BY id DESC LIMIT 1";
+$result = mysqli_query($conn, $sql);
+
+if (mysqli_num_rows($result) > 0) {
+    $row = mysqli_fetch_assoc($result);
+    echo json_encode([
+        "status" => "ok",
+        "velocidade" => $row['velocidade'],
+        "rpm" => $row['rpm'],
+        "timestamp" => $row['timestamp']
+    ]);
+} else {
+    echo json_encode(["status" => "empty", "message" => "Nenhum dado na tabela"]);
 }
 
-$last = end($data);
-echo json_encode(["status" => "ok", "velocidade" => $last['velocidade'], "rpm" => $last['rpm'], "timestamp" => $last['timestamp']]);
+mysqli_close($conn);
 ?>
