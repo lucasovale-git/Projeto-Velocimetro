@@ -480,6 +480,8 @@
             top: calc(35.5% + 25.5% / 2 - 2.1vh);
             z-index: 10;
             animation: vibrate 0.12s linear infinite;
+            transition: top 0.22s cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: top;
         }
 
         @keyframes vibrate {
@@ -864,101 +866,119 @@
         }
 
         /* ==========================================================
-           14. RPM BAR — barra horizontal com gradiente
-           Width do fill = calc(--rpm / 8000 * 100%)
+           14. RPM CIRCULAR — gauge SVG circular de 270°
+           Ponteiro: rotate(calc(-135deg + var(--rpm) * 0.03375deg))
+           Arco: stroke-dashoffset(calc(377 - var(--rpm) * 0.047125))
         ========================================================== */
         .rpm-panel {
             width: 260px;
         }
 
-        .rpm-bar-container {
-            margin-top: 8px;
+        .rpm-gauge-fill {
+            fill: none;
+            stroke: url(#rpmArcGradient);
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 377;
+            /* calc(): preenchimento progressivo do RPM */
+            stroke-dashoffset: calc(377px - var(--rpm) * 0.047125 * 1px);
+            transition: stroke-dashoffset 0.15s ease-out;
         }
 
-        .rpm-bar-track {
-            width: 100%;
-            height: 14px;
-            background: #111;
-            border-radius: 7px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .rpm-bar-fill {
-            height: 100%;
-            border-radius: 7px;
-            background: linear-gradient(90deg,
-                var(--neon-cyan) 0%,
-                var(--neon-green) 30%,
-                var(--neon-yellow) 60%,
-                var(--neon-orange) 80%,
-                var(--neon-red) 100%
-            );
-            /* calc(): largura proporcional ao RPM */
-            width: calc(var(--rpm) / 8000 * 100%);
-            transition: width 0.3s ease-out;
-            box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
-        }
-
-        /* Zona de redline (últimos 25%) */
-        .rpm-bar-track::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 25%;
-            height: 100%;
-            background: rgba(255, 45, 45, 0.1);
-            border-left: 1px solid rgba(255, 45, 45, 0.25);
-            pointer-events: none;
-        }
-
-        /* Marcações de escala */
-        .rpm-scale {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 4px;
-            padding: 0 2px;
-        }
-
-        .rpm-scale span {
-            font-size: 7px;
-            color: #445;
-            letter-spacing: 0.5px;
-        }
-
-        .rpm-scale span:last-child {
-            color: var(--neon-red);
-        }
-
-        .rpm-readout {
-            text-align: center;
-            margin-top: 8px;
+        .rpm-gauge-needle {
+            stroke: var(--neon-red);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            transform-origin: 100px 100px;
+            /* calc(): ponteiro gira de -135° (0 RPM) a +135° (8000 RPM) */
+            transform: rotate(calc(-135deg + var(--rpm) * 0.03375deg));
+            transition: transform 0.15s ease-out;
+            filter: drop-shadow(0 0 6px rgba(255, 45, 45, 0.7));
         }
 
         .rpm-value {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 32px;
+            font-weight: 900;
             color: #fff;
+            /* Glow proporcional ao RPM */
+            text-shadow:
+                0 0 calc(4px + var(--rpm) * 0.0015 * 1px) rgba(0, 240, 255, 0.5),
+                0 0 calc(8px + var(--rpm) * 0.003 * 1px) rgba(0, 240, 255, 0.2);
             letter-spacing: 2px;
         }
 
         .rpm-unit {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--neon-cyan);
             font-weight: 700;
             margin-left: 4px;
+            letter-spacing: 1px;
         }
 
-        /* Efeito de redline flash */
-        .rpm-panel.redline .rpm-bar-fill {
-            animation: rpm-flash 0.25s ease-in-out infinite alternate;
+        /* Efeito de redline flash no ponteiro e arco do RPM circular */
+        .rpm-panel.redline .rpm-gauge-needle {
+            animation: rpm-needle-flash 0.15s ease-in-out infinite alternate;
+        }
+        .rpm-panel.redline .rpm-gauge-fill {
+            animation: rpm-fill-flash 0.15s ease-in-out infinite alternate;
         }
 
-        @keyframes rpm-flash {
-            from { box-shadow: 0 0 8px rgba(255, 45, 45, 0.3); }
-            to   { box-shadow: 0 0 18px rgba(255, 45, 45, 0.7), 0 0 30px rgba(255, 45, 45, 0.3); }
+        @keyframes rpm-needle-flash {
+            from { filter: drop-shadow(0 0 6px rgba(255, 45, 45, 0.7)); }
+            to   { filter: drop-shadow(0 0 16px rgba(255, 45, 45, 1)) brightness(1.5); }
+        }
+        @keyframes rpm-fill-flash {
+            from { opacity: 0.85; }
+            to   { opacity: 1; filter: drop-shadow(0 0 8px rgba(255, 45, 45, 0.8)); }
+        }
+
+        /* ==========================================================
+           14A. COLISÃO, EXPLOSÃO & CRASH EFFECT
+        ========================================================== */
+        /* Carbonização do carro do jogador */
+        .player-car.crashed .car-chassis {
+            filter: brightness(0.12) contrast(1.3) grayscale(0.8);
+            transition: filter 0.15s ease-in;
+        }
+
+        /* Nuvem de explosão no centro do carro */
+        .explosion-cloud {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 14vh;
+            height: 14vh;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffffff 0%, #ffdd00 25%, #ff5500 55%, #ff0000 80%, transparent 100%);
+            opacity: 0;
+            z-index: 99;
+            pointer-events: none;
+            filter: blur(1px);
+            will-change: transform, opacity;
+        }
+
+        .player-car.crashed .explosion-cloud {
+            animation: explode-anim 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+
+        @keyframes explode-anim {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.2); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.6); filter: blur(3px); }
+            70% { opacity: 0.8; transform: translate(-50%, -50%) scale(2.2); filter: blur(6px); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2.6); }
+        }
+
+        /* Tremedeira da tela no impacto */
+        .scene.crashed-shake {
+            animation: scene-crash-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+
+        @keyframes scene-crash-shake {
+            10%, 90% { transform: translate3d(-6px, 4px, 0) rotate(1.2deg); }
+            20%, 80% { transform: translate3d(8px, -5px, 0) rotate(-1.7deg); }
+            30%, 50%, 70% { transform: translate3d(-10px, 8px, 0) rotate(2.4deg); }
+            40%, 60% { transform: translate3d(10px, -8px, 0) rotate(-2.4deg); }
         }
 
         /* ==========================================================
@@ -1208,6 +1228,7 @@
         <!-- ===== CARRO DO JOGADOR ===== -->
         <div class="player-car" id="playerCar">
             <div class="car-body-wrapper">
+                <div class="explosion-cloud"></div>
                 <div class="car-underglow"></div>
                 <div class="wheel fl"></div>
                 <div class="wheel fr"></div>
@@ -1350,26 +1371,63 @@
             </div>
         </div>
 
-        <!-- RPM -->
+        <!-- RPM CIRCULAR -->
         <div class="hud-panel rpm-panel" id="rpmPanel">
             <div class="panel-label">ROTAÇÃO</div>
 
-            <div class="rpm-bar-container">
-                <div class="rpm-bar-track">
-                    <div class="rpm-bar-fill" id="rpmBarFill"></div>
-                </div>
-                <div class="rpm-scale">
-                    <span>0</span>
-                    <span>1k</span>
-                    <span>2k</span>
-                    <span>3k</span>
-                    <span>4k</span>
-                    <span>5k</span>
-                    <span>6k</span>
-                    <span>7k</span>
-                    <span>8k</span>
-                </div>
-            </div>
+            <svg class="gauge-svg" viewBox="0 0 200 165">
+                <defs>
+                    <linearGradient id="rpmArcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%"   stop-color="#00f0ff"/>
+                        <stop offset="40%"  stop-color="#00ff88"/>
+                        <stop offset="70%"  stop-color="#ffdd00"/>
+                        <stop offset="85%"  stop-color="#ff6b2d"/>
+                        <stop offset="100%" stop-color="#ff2d2d"/>
+                    </linearGradient>
+                </defs>
+
+                <!-- Arco de fundo (270° de 7:30 a 4:30) -->
+                <path class="gauge-bg"
+                      d="M 43.43 156.57 A 80 80 0 1 1 156.57 156.57"/>
+
+                <!-- Arco de RPM (preenchimento progressivo) -->
+                <path class="gauge-fill rpm-gauge-fill"
+                      d="M 43.43 156.57 A 80 80 0 1 1 156.57 156.57"/>
+
+                <!-- Marcações maiores (a cada 1000 RPM, marcadas como 0, 2, 4, 6, 8) -->
+                <!-- 0 -->
+                <line class="tick-major" x1="44.85" y1="155.15" x2="52.78" y2="147.22"/>
+                <!-- 1 -->
+                <line class="tick-minor" x1="25.81" y1="124.10" x2="33.89" y2="121.47"/>
+                <!-- 2 -->
+                <line class="tick-major" x1="22.96" y1="87.80" x2="33.60" y2="89.50"/>
+                <!-- 3 -->
+                <line class="tick-minor" x1="36.90" y1="54.15" x2="44.06" y2="59.35"/>
+                <!-- 4 -->
+                <line class="tick-major" x1="64.59" y1="30.50" x2="69.50" y2="40.18"/>
+                <!-- 5 -->
+                <line class="tick-minor" x1="100" y1="22" x2="100" y2="31"/>
+                <!-- 6 (Redline) -->
+                <line class="tick-major redline-tick" x1="135.41" y1="30.50" x2="130.50" y2="40.18"/>
+                <!-- 7 -->
+                <line class="tick-minor redline-tick" x1="163.10" y1="54.15" x2="155.94" y2="59.35"/>
+                <!-- 8 -->
+                <line class="tick-major redline-tick" x1="177.04" y1="87.80" x2="166.40" y2="89.50"/>
+
+                <!-- Labels numéricos -->
+                <text class="gauge-label" x="56" y="143">0</text>
+                <text class="gauge-label" x="33" y="90">2</text>
+                <text class="gauge-label" x="68" y="45">4</text>
+                <text class="gauge-label" x="132" y="45">6</text>
+                <text class="gauge-label" x="168" y="90">8</text>
+
+                <!-- Ponteiro (rotação via calc) -->
+                <line class="gauge-needle rpm-gauge-needle" x1="100" y1="100" x2="100" y2="32"/>
+
+                <!-- Hub central -->
+                <circle class="gauge-hub-outer" cx="100" cy="100" r="8"/>
+                <circle class="gauge-hub-inner" cx="100" cy="100" r="3.5"/>
+            </svg>
 
             <div class="rpm-readout">
                 <span class="rpm-value" id="rpm">0</span>
@@ -1502,12 +1560,37 @@
     });
 
     /* ==========================================================
-       MOTOR FÍSICO DE VELOCIDADE RELATIVA (RIVAIS) E SCROLL SUAVE
+       JOGABILIDADE — CONTROLE DE FAIXAS E COLISÕES
     ========================================================== */
+    const playerCar = document.getElementById('playerCar');
     const scene = document.querySelector('.scene');
     const skylineTrack = document.querySelector('.skyline-track');
     const streetlightsTrack = document.querySelector('.streetlights-track');
     const laneMarkings = document.querySelectorAll('.lane-marking');
+
+    // Definição das coordenadas Y de cada faixa (topo, meio, baixo)
+    const lanesY = [
+        "calc(35.5% + 25.5% / 6 - 2.1vh)", // Lane 1 (topo)
+        "calc(35.5% + 25.5% / 2 - 2.1vh)", // Lane 2 (meio - padrão)
+        "calc(35.5% + 25.5% * 5 / 6 - 2.1vh)" // Lane 3 (baixo)
+    ];
+
+    let playerLane = 1; // Começa no meio (Lane 2)
+    let crashed = false; // Estado de colisão/explosão
+    let crashTime = 0; // Registro do timestamp da colisão
+
+    // Escuta do teclado para mudar de faixa
+    window.addEventListener('keydown', (e) => {
+        if (crashed) return; // Desativa comandos se o carro estiver explodido
+
+        if (e.key === 'ArrowUp') {
+            playerLane = Math.max(0, playerLane - 1);
+            playerCar.style.top = lanesY[playerLane];
+        } else if (e.key === 'ArrowDown') {
+            playerLane = Math.min(2, playerLane + 1);
+            playerCar.style.top = lanesY[playerLane];
+        }
+    });
 
     const rivalCars = [
         {
@@ -1515,21 +1598,21 @@
             baseSpeed: 75,
             speed: 75,
             x: 120, // Posição X inicial (fora da tela, à direita)
-            lane: 1
+            lane: 1 // Faixa 1 (topo, playerLane = 0)
         },
         {
             element: document.querySelector('.rival-2'),
             baseSpeed: 95,
             speed: 95,
             x: 150,
-            lane: 2
+            lane: 2 // Faixa 2 (meio, playerLane = 1)
         },
         {
             element: document.querySelector('.rival-3'),
             baseSpeed: 60,
             speed: 60,
             x: 180,
-            lane: 3
+            lane: 3 // Faixa 3 (baixo, playerLane = 2)
         }
     ];
 
@@ -1554,11 +1637,49 @@
         const dtLimitado = Math.min(dt, 0.1);
 
         // Velocidades alvo instantâneas (do ESP32 ou do slider demo)
-        const playerSpeedAlvo = demoMode ? parseFloat(demoSpeedEl.value) : painelVirtual.velocidade;
-        const playerRpmAlvo = demoMode ? parseFloat(demoRpmEl.value) : painelVirtual.rpm;
+        let playerSpeedAlvo = demoMode ? parseFloat(demoSpeedEl.value) : painelVirtual.velocidade;
+        let playerRpmAlvo = demoMode ? parseFloat(demoRpmEl.value) : painelVirtual.rpm;
+
+        // ==========================================================
+        // LÓGICA DE CRASH E RECUPERAÇÃO
+        // ==========================================================
+        if (crashed) {
+            // Força a velocidade visual e do painel para zero
+            playerSpeedAlvo = 0;
+            playerRpmAlvo = 800; // RPM de marcha lenta
+
+            // Finaliza o estado de explosão após 2.5 segundos
+            if (now - crashTime > 2500) {
+                crashed = false;
+                playerCar.classList.remove('crashed');
+                scene.classList.remove('crashed-shake');
+
+                // Reposiciona todos os rivais para longe para evitar colisões imediatas
+                rivalCars.forEach(rival => {
+                    rival.x = 120 + Math.random() * 45;
+                });
+
+                // Retorna o jogador para a faixa do meio de forma segura
+                playerLane = 1;
+                playerCar.style.top = lanesY[playerLane];
+            }
+        } else {
+            // Se NÃO estiver colidido, realiza detecção de colisão com o rival da mesma faixa
+            // activeRival corresponde diretamente a rivalCars[playerLane]
+            const activeRival = rivalCars[playerLane];
+            if (activeRival) {
+                // Checa overlap de proximidade no eixo X (player fixo em 15vw)
+                // Colisão ativada se a traseira/frente do rival encostar no player
+                if (activeRival.x > 8.5 && activeRival.x < 22.0) {
+                    crashed = true;
+                    crashTime = now;
+                    playerCar.classList.add('crashed');
+                    scene.classList.add('crashed-shake');
+                }
+            }
+        }
 
         // Interpolação suave (lerp) baseada no tempo delta
-        // O valor 7 regula a velocidade da transição: menor = mais suave/lento, maior = mais rápido
         const fatorSuavizacao = 1 - Math.exp(-7.5 * dtLimitado);
         smoothedSpeed += (playerSpeedAlvo - smoothedSpeed) * fatorSuavizacao;
         smoothedRpm += (playerRpmAlvo - smoothedRpm) * fatorSuavizacao;
@@ -1568,20 +1689,20 @@
         scene.style.setProperty('--rpm', smoothedRpm);
 
         // ==========================================================
-        // SCROLL SUAVE DO CENÁRIO (Sem saltos de re-cálculo de duração)
+        // SCROLL SUAVE DO CENÁRIO
         // ==========================================================
         
-        // 1. Skyline de prédios (deslocamento lento de 0.045vw por km/h por segundo)
+        // 1. Skyline de prédios (deslocamento de 0.045vw por km/h por segundo)
         skylineOffset -= smoothedSpeed * dtLimitado * 0.045;
         if (skylineOffset <= -100) skylineOffset += 100;
         skylineTrack.style.transform = `translate3d(${skylineOffset}vw, 0, 0)`;
 
-        // 2. Postes de luz (deslocamento médio de 0.77vw por km/h por segundo)
+        // 2. Postes de luz (deslocamento de 0.77vw por km/h por segundo)
         streetlightsOffset -= smoothedSpeed * dtLimitado * 0.77;
         if (streetlightsOffset <= -100) streetlightsOffset += 100;
         streetlightsTrack.style.transform = `translate3d(${streetlightsOffset}vw, 0, 0)`;
 
-        // 3. Faixas da pista (deslocamento rápido em pixels de 15.0px por km/h por segundo)
+        // 3. Faixas da pista (deslocamento de 15px por km/h por segundo)
         laneMarkingOffset -= smoothedSpeed * dtLimitado * 15.0;
         if (laneMarkingOffset <= -90) laneMarkingOffset += 90;
         laneMarkings.forEach(el => {
@@ -1592,13 +1713,13 @@
         // FÍSICA DOS CARROS RIVAIS (Usando velocidade suavizada)
         // ==========================================================
         rivalCars.forEach(rival => {
-            // Flutuação natural de velocidade para simular comportamento real (variação de +-4 km/h)
+            // Flutuação natural de velocidade para simular tráfego real (+-4 km/h)
             rival.speed = rival.baseSpeed + Math.sin(now * 0.0012 + rival.lane * 15) * 4;
 
-            // Velocidade relativa: jogador suavizado - rival
+            // Velocidade relativa
             const deltaV = smoothedSpeed - rival.speed;
 
-            // Fator de conversão de velocidade para deslocamento de tela
+            // Fator de deslocamento em tela
             const fatorDeslocamento = 0.45;
             const dx = -deltaV * fatorDeslocamento * dtLimitado;
 
@@ -1608,7 +1729,6 @@
             // 1. Jogador está mais rápido e o rival ficou para trás (esquerda)
             if (rival.x < -25) {
                 if (smoothedSpeed > rival.speed) {
-                    // Respawn à frente (direita), simulando novo carro a ser ultrapassado
                     rival.x = 120 + Math.random() * 40;
                     // Define velocidade menor que a do jogador para ser ultrapassado de novo
                     rival.baseSpeed = Math.max(40, smoothedSpeed - (20 + Math.random() * 35));
@@ -1619,7 +1739,6 @@
             // 2. Jogador está mais lento e o rival se afastou à frente (direita)
             else if (rival.x > 140) {
                 if (smoothedSpeed < rival.speed) {
-                    // Respawn atrás (esquerda), simulando que vai alcançar e ultrapassar o jogador
                     rival.x = -25 - Math.random() * 40;
                     // Define velocidade maior que a do jogador para conseguir ultrapassar
                     rival.baseSpeed = Math.min(180, smoothedSpeed + (15 + Math.random() * 35));
@@ -1628,12 +1747,12 @@
                 }
             }
 
-            // Aplica a nova posição no eixo X usando translate3d
+            // Aplica a posição calculada nos rivais
             rival.element.style.transform = `translate3d(${rival.x}vw, 0, 0)`;
         });
     }
 
-    // Inicializa o motor físico dos rivais e animações de scroll
+    // Inicializa o motor físico e animações de scroll
     requestAnimationFrame(atualizarFisicaECenario);
 </script>
 
