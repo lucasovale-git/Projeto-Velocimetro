@@ -158,46 +158,223 @@
            7. TREES PARALLAX — faixa de árvores com scroll
            animation-duration = calc(25s / (--speed * 0.1 + 0.2))
         ========================================================== */
-        .trees-layer {
+        /* ==========================================================
+           7. RETRO SUN & PARALLAX CITY SKYLINE
+        ========================================================== */
+        .synth-sun {
             position: absolute;
-            top: 28%;
-            left: 0;
-            width: 200%;
-            height: 6%;
-            z-index: 3;
-            background:
-                /* Árvore grande (escura) */
-                repeating-linear-gradient(90deg,
-                    #063d06 0px, #063d06 12px,
-                    #0a520a 12px, #0a520a 18px,
-                    #074507 18px, #074507 28px,
-                    #0b5e0b 28px, #0b5e0b 32px,
-                    #054005 32px, #054005 45px,
-                    #0a4f0a 45px, #0a4f0a 50px,
-                    #074207 50px, #074207 60px
-                ),
-                /* Sombra no topo */
-                linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 40%, transparent 100%);
-            background-blend-mode: normal;
-            animation: scroll-trees linear infinite;
-            animation-duration: calc(25s / (var(--speed) * 0.1 + 0.2));
+            bottom: 2%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #ff007f 0%, #ff5500 60%, #ffaa00 100%);
+            box-shadow: 0 0 50px rgba(255, 0, 127, 0.5), 0 0 100px rgba(255, 85, 0, 0.25);
+            z-index: 1;
+            overflow: hidden;
         }
 
-        @keyframes scroll-trees {
+        .synth-sun::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(180deg,
+                transparent 0px, transparent 8px,
+                #0a0a22 8px, #0a0a22 12px
+            );
+        }
+
+        .skyline-wrapper {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 68%;
+            z-index: 2;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .skyline-track {
+            display: flex;
+            width: 200%;
+            height: 100%;
+            animation: scroll-skyline linear infinite;
+            animation-duration: calc(120s / (var(--speed) * 0.05 + 0.15));
+        }
+
+        .skyline-group {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            width: 50%;
+            height: 100%;
+            padding: 0 20px;
+        }
+
+        .building {
+            position: relative;
+            background: linear-gradient(180deg, #120e26 0%, #070512 100%);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: none;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.02);
+        }
+
+        .building::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+
+        .b1 { width: 45px; height: 75%; border-left: 2px solid var(--neon-cyan); }
+        .b1::after { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
+
+        .b2 { width: 60px; height: 50%; border-top: 1px solid var(--neon-orange); }
+        .b2::after { background: var(--neon-orange); box-shadow: 0 0 8px var(--neon-orange); }
+
+        .b3 { width: 50px; height: 85%; border-right: 2px solid var(--neon-yellow); }
+        .b3::after { background: var(--neon-yellow); box-shadow: 0 0 8px var(--neon-yellow); }
+
+        .b4 { width: 35px; height: 60%; background: linear-gradient(180deg, #180d35 0%, #070714 100%); }
+        .b4::after { background: var(--neon-red); box-shadow: 0 0 8px var(--neon-red); }
+
+        .b5 { width: 70px; height: 40%; border-top: 2px solid var(--neon-green); }
+        .b5::after { background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }
+
+        .b6 { width: 40px; height: 90%; border-left: 1px solid var(--neon-cyan); }
+        .b6::after { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); }
+
+        .antenna {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 15px;
+            background: #333;
+        }
+
+        .antenna::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -2px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--neon-red);
+            animation: antenna-blink 1s infinite alternate;
+        }
+
+        @keyframes antenna-blink {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; box-shadow: 0 0 6px var(--neon-red); }
+        }
+
+        .windows {
+            position: absolute;
+            inset: 8px;
+            background-image: 
+                radial-gradient(circle, rgba(255, 230, 100, 0.18) 1px, transparent 1px),
+                radial-gradient(circle, rgba(0, 240, 255, 0.12) 1px, transparent 1px);
+            background-size: 8px 12px;
+            background-position: 0 0, 4px 6px;
+            opacity: 0.65;
+        }
+
+        @keyframes scroll-skyline {
             from { transform: translateX(0); }
             to   { transform: translateX(-50%); }
         }
 
         /* ==========================================================
-           8. ROAD AREA — asfalto, faixas, marcações
+           8. ROAD AREA, STREETLIGHTS & PARALLAX GRID
         ========================================================== */
+        .streetlights-wrapper {
+            position: absolute;
+            top: 31%;
+            left: 0;
+            width: 100%;
+            height: 29%;
+            z-index: 4;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .streetlights-track {
+            display: flex;
+            width: 200%;
+            height: 100%;
+            animation: scroll-streetlights linear infinite;
+            animation-duration: calc(20s / (var(--speed) * 0.15 + 0.3));
+        }
+
+        .streetlight-group {
+            display: flex;
+            justify-content: space-around;
+            width: 50%;
+            height: 100%;
+        }
+
+        .streetlight {
+            position: relative;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #222 0%, #0c0c14 100%);
+            margin-left: 20%;
+        }
+
+        .streetlight::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 16px;
+            height: 3px;
+            background: #444;
+            border-radius: 2px 0 0 2px;
+        }
+
+        .streetlight::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 12px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ffdd00;
+            box-shadow: 0 0 10px #ffdd00;
+        }
+
+        .light-cone {
+            position: absolute;
+            top: 0;
+            right: 15px;
+            width: 130px;
+            height: calc(100vh * 0.28);
+            background: linear-gradient(135deg, rgba(255, 221, 0, 0.1) 0%, rgba(255, 221, 0, 0) 70%);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 30% 100%);
+            pointer-events: none;
+        }
+
+        @keyframes scroll-streetlights {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+
         .grass-top {
             position: absolute;
             top: 33%;
             left: 0;
             width: 100%;
             height: 3%;
-            background: linear-gradient(180deg, #0a4a0a, #0d5a0d);
+            background: linear-gradient(180deg, #050510, #0c0822);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.25);
             z-index: 4;
         }
 
@@ -207,7 +384,8 @@
             left: 0;
             width: 100%;
             height: 3%;
-            background: linear-gradient(180deg, #0d5a0d, #0a4a0a);
+            background: linear-gradient(180deg, #0c0822, #050510);
+            border-top: 1px solid rgba(0, 240, 255, 0.25);
             z-index: 4;
         }
 
@@ -216,62 +394,57 @@
             top: 35.5%;
             left: 0;
             width: 100%;
-            height: 25%;
-            background: var(--road-surface);
+            height: 25.5%;
+            background: #11111a;
             z-index: 5;
-            /* Textura sutil no asfalto */
+            /* Grid no asfalto (Estilo Retro Cyberpunk) */
             background-image:
-                repeating-linear-gradient(90deg,
-                    rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px,
-                    transparent 1px, transparent 8px
-                ),
-                repeating-linear-gradient(180deg,
-                    rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px,
-                    transparent 1px, transparent 6px
-                );
-            background-color: var(--road-surface);
+                linear-gradient(90deg, rgba(255, 0, 127, 0.08) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(255, 0, 127, 0.04) 1px, transparent 1px);
+            background-size: 40px 10px;
         }
 
-        /* Bordas da pista (faixas contínuas brancas) */
+        /* Bordas da pista (neon ciano) */
         .road-edge-top,
         .road-edge-bottom {
             position: absolute;
             left: 0;
             width: 100%;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.7);
+            height: 4px;
             z-index: 6;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
         }
-        .road-edge-top    { top: 35.5%; }
-        .road-edge-bottom { top: calc(35.5% + 25% - 3px); }
+        .road-edge-top    { top: 35.5%; background: var(--neon-cyan); }
+        .road-edge-bottom { top: calc(35.5% + 25.5% - 4px); background: var(--neon-cyan); }
 
-        /* Faixas tracejadas entre as pistas */
+        /* Faixas tracejadas neon magenta */
         .lane-marking {
             position: absolute;
             left: 0;
             width: 100%;
-            height: 3px;
+            height: 2px;
             z-index: 6;
             background: repeating-linear-gradient(90deg,
-                rgba(255, 255, 255, 0.6) 0px,
-                rgba(255, 255, 255, 0.6) 30px,
-                transparent 30px,
-                transparent 70px
+                #ff007f 0px,
+                #ff007f 40px,
+                transparent 40px,
+                transparent 90px
             );
             animation: scroll-markings linear infinite;
-            /* calc(): quanto maior --speed, menor o tempo → marcações mais rápidas */
             animation-duration: calc(20s / (var(--speed) * 0.15 + 0.3));
+            opacity: 0.8;
+            box-shadow: 0 0 5px #ff007f;
         }
 
-        .lane-marking-1 { top: calc(35.5% + 25% / 3); }
-        .lane-marking-2 { top: calc(35.5% + 25% * 2 / 3); }
+        .lane-marking-1 { top: calc(35.5% + 25.5% / 3); }
+        .lane-marking-2 { top: calc(35.5% + 25.5% * 2 / 3); }
 
         @keyframes scroll-markings {
             from { background-position-x: 0; }
-            to   { background-position-x: -70px; }
+            to   { background-position-x: -90px; }
         }
 
-        /* Sombras na borda da pista para dar profundidade */
+        /* Sombras na borda da pista */
         .road::before,
         .road::after {
             content: '';
@@ -284,187 +457,269 @@
         }
         .road::before {
             left: 0;
-            background: linear-gradient(90deg, rgba(0,0,0,0.25), transparent);
+            background: linear-gradient(90deg, rgba(0,0,0,0.4), transparent);
         }
         .road::after {
             right: 0;
-            background: linear-gradient(270deg, rgba(0,0,0,0.25), transparent);
+            background: linear-gradient(270deg, rgba(0,0,0,0.4), transparent);
         }
 
         /* ==========================================================
-           9. SPEED LINES — rastros de velocidade na pista
-           Opacidade proporcional à --speed
+           9. SPEED LINES
         ========================================================== */
         .speed-lines {
             position: absolute;
             top: 35.5%;
             left: 0;
             width: 100%;
-            height: 25%;
+            height: 25.5%;
             z-index: 7;
             pointer-events: none;
-            /* Linhas horizontais finas */
             background:
-                linear-gradient(0deg, transparent 12%, rgba(255,255,255,0.06) 12.3%, transparent 12.6%) 0 0,
-                linear-gradient(0deg, transparent 35%, rgba(255,255,255,0.04) 35.3%, transparent 35.6%) 0 0,
-                linear-gradient(0deg, transparent 58%, rgba(255,255,255,0.07) 58.3%, transparent 58.6%) 0 0,
-                linear-gradient(0deg, transparent 82%, rgba(255,255,255,0.05) 82.3%, transparent 82.6%) 0 0;
-            /* Visível apenas em alta velocidade */
-            opacity: calc(var(--speed) * 0.005);
+                linear-gradient(0deg, transparent 12%, rgba(255,255,255,0.08) 12.3%, transparent 12.6%) 0 0,
+                linear-gradient(0deg, transparent 35%, rgba(255,255,255,0.05) 35.3%, transparent 35.6%) 0 0,
+                linear-gradient(0deg, transparent 58%, rgba(255,255,255,0.09) 58.3%, transparent 58.6%) 0 0,
+                linear-gradient(0deg, transparent 82%, rgba(255,255,255,0.06) 82.3%, transparent 82.6%) 0 0;
+            opacity: calc(var(--speed) * 0.0055);
         }
 
         /* ==========================================================
-           10. PLAYER CAR — fixo à esquerda, vibração no eixo Y
-           Amplitude da vibração = calc(--speed * fator)
+           10. PLAYER CAR (Vista Superior Premium)
         ========================================================== */
         .player-car {
             position: absolute;
-            left: 12%;
-            top: calc(35.5% + 25% / 2 - 2vh);
+            left: 15%;
+            top: calc(35.5% + 25.5% / 2 - 2.1vh);
             z-index: 10;
-            animation: vibrate 0.1s linear infinite;
+            animation: vibrate 0.12s linear infinite;
         }
 
         @keyframes vibrate {
             0%, 100% { transform: translate(0, 0); }
-            12%  { transform: translate(calc(var(--speed) * 0.005 * 1px), calc(var(--speed) * -0.025 * 1px)); }
-            25%  { transform: translate(calc(var(--speed) * -0.004 * 1px), calc(var(--speed) * 0.018 * 1px)); }
-            37%  { transform: translate(calc(var(--speed) * 0.006 * 1px), calc(var(--speed) * -0.022 * 1px)); }
-            50%  { transform: translate(calc(var(--speed) * -0.003 * 1px), calc(var(--speed) * 0.015 * 1px)); }
-            62%  { transform: translate(calc(var(--speed) * 0.005 * 1px), calc(var(--speed) * -0.028 * 1px)); }
-            75%  { transform: translate(calc(var(--speed) * -0.004 * 1px), calc(var(--speed) * 0.020 * 1px)); }
-            87%  { transform: translate(calc(var(--speed) * 0.003 * 1px), calc(var(--speed) * -0.016 * 1px)); }
+            12%  { transform: translate(calc(var(--speed) * 0.004 * 1px), calc(var(--speed) * -0.02 * 1px)); }
+            25%  { transform: translate(calc(var(--speed) * -0.003 * 1px), calc(var(--speed) * 0.015 * 1px)); }
+            37%  { transform: translate(calc(var(--speed) * 0.005 * 1px), calc(var(--speed) * -0.018 * 1px)); }
+            50%  { transform: translate(calc(var(--speed) * -0.002 * 1px), calc(var(--speed) * 0.012 * 1px)); }
+            62%  { transform: translate(calc(var(--speed) * 0.004 * 1px), calc(var(--speed) * -0.022 * 1px)); }
+            75%  { transform: translate(calc(var(--speed) * -0.003 * 1px), calc(var(--speed) * 0.016 * 1px)); }
+            87%  { transform: translate(calc(var(--speed) * 0.002 * 1px), calc(var(--speed) * -0.013 * 1px)); }
         }
 
-        /* Corpo do carro do jogador (vista de cima, apontando → direita) */
-        .car-body {
-            width: 9vh;
-            height: 3.8vh;
-            border-radius: 6px 22px 22px 6px;
+        .car-body-wrapper {
             position: relative;
-            box-shadow:
-                0 3px 12px rgba(0, 0, 0, 0.6),
-                0 0 8px rgba(0, 0, 0, 0.3);
+            width: 10vh;
+            height: 4.2vh;
         }
 
-        .player-car .car-body {
-            background: linear-gradient(180deg, #ff4444, #cc1111);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* Para-brisa */
-        .car-body::before {
-            content: '';
+        .car-underglow {
             position: absolute;
-            right: 14%;
-            top: 16%;
-            width: 24%;
-            height: 68%;
-            background: linear-gradient(135deg, rgba(100,200,255,0.35), rgba(100,200,255,0.08));
-            border-radius: 3px 8px 8px 3px;
-            border: 1px solid rgba(255,255,255,0.12);
+            inset: -4px -8px;
+            border-radius: 14px;
+            filter: blur(10px);
+            z-index: -1;
         }
 
-        /* Faixa racing */
-        .car-body::after {
-            content: '';
+        .player-car .car-underglow {
+            background: rgba(255, 45, 45, 0.85);
+            box-shadow: 0 0 16px rgba(255, 45, 45, 0.65);
+            animation: underglow-flicker 0.15s infinite alternate;
+        }
+
+        @keyframes underglow-flicker {
+            0% { opacity: 0.75; }
+            100% { opacity: 1; }
+        }
+
+        /* Rodas */
+        .wheel {
             position: absolute;
-            top: 50%;
-            left: 8%;
-            right: 22%;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.35);
-            transform: translateY(-50%);
+            width: 2.2vh;
+            height: 0.9vh;
+            background: #181818;
             border-radius: 2px;
+            border: 1px solid #3a3a3a;
+            z-index: 1;
+            background-image: repeating-linear-gradient(90deg, #111 0px, #111 2px, #222 2px, #222 4px);
+        }
+        .fl { top: -0.6vh; right: 1.8vh; }
+        .fr { bottom: -0.6vh; right: 1.8vh; }
+        .rl { top: -0.6vh; left: 1.2vh; }
+        .rr { bottom: -0.6vh; left: 1.2vh; }
+
+        /* Chassis */
+        .car-chassis {
+            position: absolute;
+            inset: 0;
+            border-radius: 6px 20px 20px 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            z-index: 2;
         }
 
-        /* Farol dianteiro — brilho proporcional à --speed */
-        .headlight {
+        .player-car .car-chassis {
+            background: linear-gradient(180deg, #ff3b30 0%, #8f0e0e 50%, #d32f2f 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* Faixas esportivas de fibra de carbono */
+        .car-stripes {
             position: absolute;
-            right: -25px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50px;
-            height: 22px;
-            background: radial-gradient(ellipse at left center, rgba(255,220,100,0.5) 0%, transparent 70%);
-            filter: blur(5px);
-            /* Brilho cresce com a velocidade */
+            top: 32%;
+            bottom: 32%;
+            left: 12%;
+            right: 32%;
+            background: linear-gradient(180deg, #111 0%, #222 100%);
+            opacity: 0.85;
+            border-radius: 1px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* Cockpit e Para-brisa */
+        .car-cockpit {
+            position: absolute;
+            right: 18%;
+            top: 15%;
+            width: 25%;
+            height: 70%;
+            background: linear-gradient(135deg, rgba(200, 240, 255, 0.85) 0%, rgba(100, 180, 255, 0.3) 50%, rgba(200, 240, 255, 0.05) 100%);
+            border-radius: 4px 10px 10px 4px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.25);
+        }
+
+        /* Aerofólio (Spoiler) */
+        .car-spoiler {
+            position: absolute;
+            left: -2px;
+            top: -0.5vh;
+            width: 0.8vh;
+            height: 5.2vh;
+            background: #111;
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+        }
+        .car-spoiler::before,
+        .car-spoiler::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 6px;
+            background: #111;
+            left: -1px;
+        }
+        .car-spoiler::before { top: 0; }
+        .car-spoiler::after { bottom: 0; }
+
+        /* Faróis (Projeção real de luz) */
+        .headlight-beam {
+            position: absolute;
+            right: -180px;
+            top: -49px;
+            width: 180px;
+            height: 140px;
+            background: linear-gradient(90deg, rgba(255, 230, 150, 0.35) 0%, rgba(255, 230, 150, 0) 80%);
+            clip-path: polygon(0 35%, 100% 0, 100% 100%, 0 65%);
+            filter: blur(4px);
             opacity: calc(0.2 + var(--speed) * 0.004);
             pointer-events: none;
         }
 
-        /* Luz traseira */
-        .taillight {
+        /* Lanternas traseiras */
+        .taillight-glow {
             position: absolute;
-            left: -8px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 12px;
-            height: 16px;
-            background: radial-gradient(ellipse at right center, rgba(255,30,30,0.7) 0%, transparent 80%);
-            filter: blur(3px);
-            opacity: 0.7;
+            left: -6px;
+            top: 15%;
+            bottom: 15%;
+            width: 6px;
+            background: #ff2d2d;
+            box-shadow: 0 0 12px #ff2d2d;
+            border-radius: 1px;
+        }
+
+        /* Chamas de escapamento (RPM alto) */
+        .exhaust-flame {
+            position: absolute;
+            left: -22px;
+            top: 30%;
+            height: 40%;
+            width: 22px;
+            background: linear-gradient(270deg, #ffdd00 0%, #ff5500 50%, rgba(255, 0, 0, 0) 100%);
+            transform-origin: right center;
+            animation: flame-burn 0.05s infinite alternate;
+            opacity: calc(var(--rpm) * 0.00018 - 0.2);
+            filter: drop-shadow(0 0 6px #ff5500);
             pointer-events: none;
         }
 
+        @keyframes flame-burn {
+            0% { transform: scaleY(0.8) scaleX(0.85) skewY(-2deg); }
+            100% { transform: scaleY(1.2) scaleX(1.15) skewY(2deg); }
+        }
+
         /* ==========================================================
-           11. RIVAL CARS — cruzam da direita para a esquerda
-           animation-duration = calc(3s + --speed * 0.06s)
-           Inversamente proporcional: quanto maior a speed do jogador,
-           mais LENTO o rival cruza a tela (jogador acompanha)
+           11. RIVAL CARS (Atualização por JS e Estilos Diferenciados)
         ========================================================== */
         .rival-car {
             position: absolute;
             z-index: 9;
-            animation: rival-pass linear infinite;
+            transform: translate3d(120vw, 0, 0); /* Controlado dinamicamente via JS */
         }
 
-        @keyframes rival-pass {
-            from { transform: translateX(calc(100vw + 120px)); }
-            to   { transform: translateX(-200px); }
+        .rival-car .car-body-wrapper {
+            position: relative;
+            width: 9.5vh;
+            height: 4vh;
         }
 
-        /* Rival 1 — Azul, Pista 1 (topo) */
+        /* Rival 1 — Azul Coupe Esportivo */
         .rival-1 {
-            top: calc(35.5% + 25% / 6 - 1.9vh);
-            animation-duration: calc(3s + var(--speed) * 0.06s);
-            animation-delay: 0s;
+            top: calc(35.5% + 25.5% / 6 - 2vh);
         }
-        .rival-1 .car-body {
-            background: linear-gradient(180deg, #3388ff, #1155cc);
+        .rival-1 .car-chassis {
+            background: linear-gradient(180deg, #007aff 0%, #003a8c 50%, #0056b3 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .rival-1 .car-underglow {
+            background: rgba(0, 240, 255, 0.85);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.65);
+        }
+        .rival-1 .headlight-beam {
+            background: linear-gradient(90deg, rgba(0, 240, 255, 0.3) 0%, rgba(0, 240, 255, 0) 80%);
         }
 
-        /* Rival 2 — Laranja, Pista 2 (meio — mesma do jogador!) */
+        /* Rival 2 — Laranja Muscle Retro */
         .rival-2 {
-            top: calc(35.5% + 25% / 2 - 1.9vh);
-            animation-duration: calc(4.5s + var(--speed) * 0.055s);
-            animation-delay: -5s;
+            top: calc(35.5% + 25.5% / 2 - 2vh);
         }
-        .rival-2 .car-body {
-            background: linear-gradient(180deg, #ff8833, #cc5500);
+        .rival-2 .car-chassis {
+            background: linear-gradient(180deg, #ff9500 0%, #b35900 50%, #ff7f00 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .rival-2 .car-underglow {
+            background: rgba(255, 127, 0, 0.85);
+            box-shadow: 0 0 15px rgba(255, 127, 0, 0.65);
+        }
+        .rival-2 .headlight-beam {
+            background: linear-gradient(90deg, rgba(255, 150, 0, 0.3) 0%, rgba(255, 150, 0, 0) 80%);
         }
 
-        /* Rival 3 — Verde, Pista 3 (baixo) */
+        /* Rival 3 — Verde Hypercar Aerodinâmico */
         .rival-3 {
-            top: calc(35.5% + 25% * 5 / 6 - 1.9vh);
-            animation-duration: calc(2.8s + var(--speed) * 0.065s);
-            animation-delay: -3s;
+            top: calc(35.5% + 25.5% * 5 / 6 - 2vh);
         }
-        .rival-3 .car-body {
-            background: linear-gradient(180deg, #33dd77, #119944);
+        .rival-3 .car-chassis {
+            background: linear-gradient(180deg, #34c759 0%, #146428 50%, #24b044 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
-
-        /* Rival cars — tamanho levemente menor */
-        .rival-car .car-body {
-            width: 8vh;
-            height: 3.4vh;
-            border-radius: 6px 20px 20px 6px;
-            border: 1px solid rgba(255,255,255,0.08);
+        .rival-3 .car-underglow {
+            background: rgba(52, 199, 89, 0.85);
+            box-shadow: 0 0 15px rgba(52, 199, 89, 0.65);
+        }
+        .rival-3 .headlight-beam {
+            background: linear-gradient(90deg, rgba(52, 199, 89, 0.3) 0%, rgba(52, 199, 89, 0) 80%);
         }
 
-        .rival-car .car-body::after {
-            right: 20%;
-        }
 
         /* ==========================================================
            12. HUD OVERLAY — painel translúcido no rodapé
@@ -873,14 +1128,14 @@
                 font-size: 18px;
             }
 
-            .player-car .car-body {
-                width: 7vh;
-                height: 3vh;
+            .player-car .car-body-wrapper {
+                width: 8vh;
+                height: 3.4vh;
             }
 
-            .rival-car .car-body {
-                width: 6vh;
-                height: 2.6vh;
+            .rival-car .car-body-wrapper {
+                width: 7.6vh;
+                height: 3.2vh;
             }
 
             .test-controls {
@@ -898,14 +1153,51 @@
     <!-- ==================== SCENE ==================== -->
     <div class="scene">
 
-        <!-- Céu noturno com estrelas e lua -->
-        <div class="sky"></div>
+        <!-- Céu noturno com estrelas, lua e sol retro neon -->
+        <div class="sky">
+            <!-- Sol Synthwave Retro -->
+            <div class="synth-sun"></div>
+            <!-- Parallax Skyline da Cidade -->
+            <div class="skyline-wrapper">
+                <div class="skyline-track">
+                    <div class="skyline-group">
+                        <div class="building b1"><div class="antenna"></div><div class="windows"></div></div>
+                        <div class="building b2"><div class="windows"></div></div>
+                        <div class="building b3"><div class="windows"></div></div>
+                        <div class="building b4"><div class="antenna"></div><div class="windows"></div></div>
+                        <div class="building b5"><div class="windows"></div></div>
+                        <div class="building b6"><div class="windows"></div></div>
+                    </div>
+                    <div class="skyline-group">
+                        <div class="building b1"><div class="antenna"></div><div class="windows"></div></div>
+                        <div class="building b2"><div class="windows"></div></div>
+                        <div class="building b3"><div class="windows"></div></div>
+                        <div class="building b4"><div class="antenna"></div><div class="windows"></div></div>
+                        <div class="building b5"><div class="windows"></div></div>
+                        <div class="building b6"><div class="windows"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Brilho no horizonte -->
         <div class="horizon-glow"></div>
 
-        <!-- Camada parallax de árvores -->
-        <div class="trees-layer"></div>
+        <!-- Postes de luz dinâmicos (streetlights) -->
+        <div class="streetlights-wrapper">
+            <div class="streetlights-track">
+                <div class="streetlight-group">
+                    <div class="streetlight"><div class="light-cone"></div></div>
+                    <div class="streetlight"><div class="light-cone"></div></div>
+                    <div class="streetlight"><div class="light-cone"></div></div>
+                </div>
+                <div class="streetlight-group">
+                    <div class="streetlight"><div class="light-cone"></div></div>
+                    <div class="streetlight"><div class="light-cone"></div></div>
+                    <div class="streetlight"><div class="light-cone"></div></div>
+                </div>
+            </div>
+        </div>
 
         <!-- Grama (acima e abaixo da pista) -->
         <div class="grass-top"></div>
@@ -927,21 +1219,68 @@
 
         <!-- ===== CARRO DO JOGADOR ===== -->
         <div class="player-car" id="playerCar">
-            <div class="car-body">
-                <div class="headlight"></div>
-                <div class="taillight"></div>
+            <div class="car-body-wrapper">
+                <div class="car-underglow"></div>
+                <div class="wheel fl"></div>
+                <div class="wheel fr"></div>
+                <div class="wheel rl"></div>
+                <div class="wheel rr"></div>
+                <div class="car-chassis">
+                    <div class="car-cockpit"></div>
+                    <div class="car-stripes"></div>
+                    <div class="car-spoiler"></div>
+                </div>
+                <div class="headlight-beam"></div>
+                <div class="taillight-glow"></div>
+                <div class="exhaust-flame"></div>
             </div>
         </div>
 
         <!-- ===== CARROS RIVAIS ===== -->
         <div class="rival-car rival-1">
-            <div class="car-body"></div>
+            <div class="car-body-wrapper">
+                <div class="car-underglow"></div>
+                <div class="wheel fl"></div>
+                <div class="wheel fr"></div>
+                <div class="wheel rl"></div>
+                <div class="wheel rr"></div>
+                <div class="car-chassis">
+                    <div class="car-cockpit"></div>
+                    <div class="car-spoiler"></div>
+                </div>
+                <div class="headlight-beam"></div>
+                <div class="taillight-glow"></div>
+            </div>
         </div>
         <div class="rival-car rival-2">
-            <div class="car-body"></div>
+            <div class="car-body-wrapper">
+                <div class="car-underglow"></div>
+                <div class="wheel fl"></div>
+                <div class="wheel fr"></div>
+                <div class="wheel rl"></div>
+                <div class="wheel rr"></div>
+                <div class="car-chassis">
+                    <div class="car-cockpit"></div>
+                    <div class="car-spoiler"></div>
+                </div>
+                <div class="headlight-beam"></div>
+                <div class="taillight-glow"></div>
+            </div>
         </div>
         <div class="rival-car rival-3">
-            <div class="car-body"></div>
+            <div class="car-body-wrapper">
+                <div class="car-underglow"></div>
+                <div class="wheel fl"></div>
+                <div class="wheel fr"></div>
+                <div class="wheel rl"></div>
+                <div class="wheel rr"></div>
+                <div class="car-chassis">
+                    <div class="car-cockpit"></div>
+                    <div class="car-spoiler"></div>
+                </div>
+                <div class="headlight-beam"></div>
+                <div class="taillight-glow"></div>
+            </div>
         </div>
 
     </div><!-- /.scene -->
@@ -1173,6 +1512,95 @@
         document.getElementById('rpm').textContent = Math.round(rpm);
         aplicarVariaveisCSS(parseFloat(demoSpeedEl.value), rpm);
     });
+
+    /* ==========================================================
+       MOTOR FÍSICO DE VELOCIDADE RELATIVA (RIVAIS)
+    ========================================================== */
+    const rivalCars = [
+        {
+            element: document.querySelector('.rival-1'),
+            baseSpeed: 75,
+            speed: 75,
+            x: 120, // Posição X inicial (fora da tela, à direita)
+            lane: 1
+        },
+        {
+            element: document.querySelector('.rival-2'),
+            baseSpeed: 95,
+            speed: 95,
+            x: 150,
+            lane: 2
+        },
+        {
+            element: document.querySelector('.rival-3'),
+            baseSpeed: 60,
+            speed: 60,
+            x: 180,
+            lane: 3
+        }
+    ];
+
+    let lastTime = performance.now();
+
+    function atualizarFisicaRivais(now) {
+        requestAnimationFrame(atualizarFisicaRivais);
+
+        const dt = (now - lastTime) / 1000;
+        lastTime = now;
+
+        // Evita saltos gigantes caso a janela perca foco (clamped dt)
+        const dtLimitado = Math.min(dt, 0.1);
+
+        // Velocidade atual do jogador
+        const playerSpeed = demoMode ? parseFloat(demoSpeedEl.value) : painelVirtual.velocidade;
+
+        rivalCars.forEach(rival => {
+            // Flutuação natural de velocidade para simular comportamento real (variação de +-4 km/h)
+            rival.speed = rival.baseSpeed + Math.sin(now * 0.0012 + rival.lane * 15) * 4;
+
+            // Velocidade relativa: jogador - rival
+            const deltaV = playerSpeed - rival.speed;
+
+            // Fator de conversão: quanto maior a diferença, mais rápido o carro cruza a tela
+            // 0.45vw de deslocamento por km/h de diferença a cada segundo
+            const fatorDeslocamento = 0.45;
+            const dx = -deltaV * fatorDeslocamento * dtLimitado;
+
+            rival.x += dx;
+
+            // Lógica de Overtake e Respawn
+            // 1. Jogador está mais rápido e o rival ficou para trás (esquerda)
+            if (rival.x < -25) {
+                if (playerSpeed > rival.speed) {
+                    // Respawn à frente (direita), simulando novo carro a ser ultrapassado
+                    rival.x = 120 + Math.random() * 40;
+                    // Define velocidade menor que a do jogador para ser ultrapassado de novo
+                    rival.baseSpeed = Math.max(40, playerSpeed - (20 + Math.random() * 35));
+                } else {
+                    // Prevenção de travamento: se por algum motivo saiu e o jogador está mais lento, coloca à frente
+                    rival.x = 125;
+                }
+            }
+            // 2. Jogador está mais lento e o rival se afastou à frente (direita)
+            else if (rival.x > 140) {
+                if (playerSpeed < rival.speed) {
+                    // Respawn atrás (esquerda), simulando que vai alcançar e ultrapassar o jogador
+                    rival.x = -25 - Math.random() * 40;
+                    // Define velocidade maior que a do jogador para conseguir ultrapassar
+                    rival.baseSpeed = Math.min(180, playerSpeed + (15 + Math.random() * 35));
+                } else {
+                    // Prevenção de travamento: coloca atrás se o jogador é mais rápido mas o carro saiu pela direita
+                    rival.x = -25;
+                }
+            }
+
+            // Aplica a nova posição no eixo X usando translate3d (aceleração por hardware)
+            rival.element.style.transform = `translate3d(${rival.x}vw, 0, 0)`;
+        });
+    }
+
+    // Inicializa o motor físico dos rivais
+    requestAnimationFrame(atualizarFisicaRivais);
 </script>
 
 </body>
