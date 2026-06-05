@@ -200,8 +200,7 @@
             display: flex;
             width: 200%;
             height: 100%;
-            animation: scroll-skyline linear infinite;
-            animation-duration: calc(120s / (var(--speed) * 0.05 + 0.15));
+            will-change: transform;
         }
 
         .skyline-group {
@@ -286,10 +285,7 @@
             opacity: 0.65;
         }
 
-        @keyframes scroll-skyline {
-            from { transform: translateX(0); }
-            to   { transform: translateX(-50%); }
-        }
+
 
         /* ==========================================================
            8. ROAD AREA, STREETLIGHTS & PARALLAX GRID
@@ -309,8 +305,7 @@
             display: flex;
             width: 200%;
             height: 100%;
-            animation: scroll-streetlights linear infinite;
-            animation-duration: calc(20s / (var(--speed) * 0.15 + 0.3));
+            will-change: transform;
         }
 
         .streetlight-group {
@@ -362,10 +357,7 @@
             pointer-events: none;
         }
 
-        @keyframes scroll-streetlights {
-            from { transform: translateX(0); }
-            to   { transform: translateX(-50%); }
-        }
+
 
         .grass-top {
             position: absolute;
@@ -421,7 +413,7 @@
         .lane-marking {
             position: absolute;
             left: 0;
-            width: 100%;
+            width: calc(100% + 90px);
             height: 2px;
             z-index: 6;
             background: repeating-linear-gradient(90deg,
@@ -430,19 +422,15 @@
                 transparent 40px,
                 transparent 90px
             );
-            animation: scroll-markings linear infinite;
-            animation-duration: calc(20s / (var(--speed) * 0.15 + 0.3));
             opacity: 0.8;
             box-shadow: 0 0 5px #ff007f;
+            will-change: transform;
         }
 
         .lane-marking-1 { top: calc(35.5% + 25.5% / 3); }
         .lane-marking-2 { top: calc(35.5% + 25.5% * 2 / 3); }
 
-        @keyframes scroll-markings {
-            from { background-position-x: 0; }
-            to   { background-position-x: -90px; }
-        }
+
 
         /* Sombras na borda da pista */
         .road::before,
@@ -1514,8 +1502,13 @@
     });
 
     /* ==========================================================
-       MOTOR FÍSICO DE VELOCIDADE RELATIVA (RIVAIS)
+       MOTOR FÍSICO DE VELOCIDADE RELATIVA (RIVAIS) E SCROLL SUAVE
     ========================================================== */
+    const scene = document.querySelector('.scene');
+    const skylineTrack = document.querySelector('.skyline-track');
+    const streetlightsTrack = document.querySelector('.streetlights-track');
+    const laneMarkings = document.querySelectorAll('.lane-marking');
+
     const rivalCars = [
         {
             element: document.querySelector('.rival-1'),
@@ -1542,8 +1535,17 @@
 
     let lastTime = performance.now();
 
-    function atualizarFisicaRivais(now) {
-        requestAnimationFrame(atualizarFisicaRivais);
+    // Variáveis suavizadas para renderização visual da cena e do carro
+    let smoothedSpeed = 0;
+    let smoothedRpm = 0;
+
+    // Acumuladores de offset para scroll infinito do cenário
+    let skylineOffset = 0;
+    let streetlightsOffset = 0;
+    let laneMarkingOffset = 0;
+
+    function atualizarFisicaECenario(now) {
+        requestAnimationFrame(atualizarFisicaECenario);
 
         const dt = (now - lastTime) / 1000;
         lastTime = now;
@@ -1551,18 +1553,52 @@
         // Evita saltos gigantes caso a janela perca foco (clamped dt)
         const dtLimitado = Math.min(dt, 0.1);
 
-        // Velocidade atual do jogador
-        const playerSpeed = demoMode ? parseFloat(demoSpeedEl.value) : painelVirtual.velocidade;
+        // Velocidades alvo instantâneas (do ESP32 ou do slider demo)
+        const playerSpeedAlvo = demoMode ? parseFloat(demoSpeedEl.value) : painelVirtual.velocidade;
+        const playerRpmAlvo = demoMode ? parseFloat(demoRpmEl.value) : painelVirtual.rpm;
 
+        // Interpolação suave (lerp) baseada no tempo delta
+        // O valor 7 regula a velocidade da transição: menor = mais suave/lento, maior = mais rápido
+        const fatorSuavizacao = 1 - Math.exp(-7.5 * dtLimitado);
+        smoothedSpeed += (playerSpeedAlvo - smoothedSpeed) * fatorSuavizacao;
+        smoothedRpm += (playerRpmAlvo - smoothedRpm) * fatorSuavizacao;
+
+        // Aplica as variáveis suavizadas APENAS na árvore da cena (carro, vibração, faróis, escapamento)
+        scene.style.setProperty('--speed', smoothedSpeed);
+        scene.style.setProperty('--rpm', smoothedRpm);
+
+        // ==========================================================
+        // SCROLL SUAVE DO CENÁRIO (Sem saltos de re-cálculo de duração)
+        // ==========================================================
+        
+        // 1. Skyline de prédios (deslocamento lento de 0.045vw por km/h por segundo)
+        skylineOffset -= smoothedSpeed * dtLimitado * 0.045;
+        if (skylineOffset <= -100) skylineOffset += 100;
+        skylineTrack.style.transform = `translate3d(${skylineOffset}vw, 0, 0)`;
+
+        // 2. Postes de luz (deslocamento médio de 0.77vw por km/h por segundo)
+        streetlightsOffset -= smoothedSpeed * dtLimitado * 0.77;
+        if (streetlightsOffset <= -100) streetlightsOffset += 100;
+        streetlightsTrack.style.transform = `translate3d(${streetlightsOffset}vw, 0, 0)`;
+
+        // 3. Faixas da pista (deslocamento rápido em pixels de 15.0px por km/h por segundo)
+        laneMarkingOffset -= smoothedSpeed * dtLimitado * 15.0;
+        if (laneMarkingOffset <= -90) laneMarkingOffset += 90;
+        laneMarkings.forEach(el => {
+            el.style.transform = `translate3d(${laneMarkingOffset}px, 0, 0)`;
+        });
+
+        // ==========================================================
+        // FÍSICA DOS CARROS RIVAIS (Usando velocidade suavizada)
+        // ==========================================================
         rivalCars.forEach(rival => {
             // Flutuação natural de velocidade para simular comportamento real (variação de +-4 km/h)
             rival.speed = rival.baseSpeed + Math.sin(now * 0.0012 + rival.lane * 15) * 4;
 
-            // Velocidade relativa: jogador - rival
-            const deltaV = playerSpeed - rival.speed;
+            // Velocidade relativa: jogador suavizado - rival
+            const deltaV = smoothedSpeed - rival.speed;
 
-            // Fator de conversão: quanto maior a diferença, mais rápido o carro cruza a tela
-            // 0.45vw de deslocamento por km/h de diferença a cada segundo
+            // Fator de conversão de velocidade para deslocamento de tela
             const fatorDeslocamento = 0.45;
             const dx = -deltaV * fatorDeslocamento * dtLimitado;
 
@@ -1571,36 +1607,34 @@
             // Lógica de Overtake e Respawn
             // 1. Jogador está mais rápido e o rival ficou para trás (esquerda)
             if (rival.x < -25) {
-                if (playerSpeed > rival.speed) {
+                if (smoothedSpeed > rival.speed) {
                     // Respawn à frente (direita), simulando novo carro a ser ultrapassado
                     rival.x = 120 + Math.random() * 40;
                     // Define velocidade menor que a do jogador para ser ultrapassado de novo
-                    rival.baseSpeed = Math.max(40, playerSpeed - (20 + Math.random() * 35));
+                    rival.baseSpeed = Math.max(40, smoothedSpeed - (20 + Math.random() * 35));
                 } else {
-                    // Prevenção de travamento: se por algum motivo saiu e o jogador está mais lento, coloca à frente
                     rival.x = 125;
                 }
             }
             // 2. Jogador está mais lento e o rival se afastou à frente (direita)
             else if (rival.x > 140) {
-                if (playerSpeed < rival.speed) {
+                if (smoothedSpeed < rival.speed) {
                     // Respawn atrás (esquerda), simulando que vai alcançar e ultrapassar o jogador
                     rival.x = -25 - Math.random() * 40;
                     // Define velocidade maior que a do jogador para conseguir ultrapassar
-                    rival.baseSpeed = Math.min(180, playerSpeed + (15 + Math.random() * 35));
+                    rival.baseSpeed = Math.min(180, smoothedSpeed + (15 + Math.random() * 35));
                 } else {
-                    // Prevenção de travamento: coloca atrás se o jogador é mais rápido mas o carro saiu pela direita
                     rival.x = -25;
                 }
             }
 
-            // Aplica a nova posição no eixo X usando translate3d (aceleração por hardware)
+            // Aplica a nova posição no eixo X usando translate3d
             rival.element.style.transform = `translate3d(${rival.x}vw, 0, 0)`;
         });
     }
 
-    // Inicializa o motor físico dos rivais
-    requestAnimationFrame(atualizarFisicaRivais);
+    // Inicializa o motor físico dos rivais e animações de scroll
+    requestAnimationFrame(atualizarFisicaECenario);
 </script>
 
 </body>
