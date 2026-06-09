@@ -29,7 +29,19 @@ if ($velocidade === null || $rpm === null) {
 $sql = "INSERT INTO velotabe (velocidade, rpm, timestamp) VALUES ('$velocidade', '$rpm', '$timestamp')";
 
 if (mysqli_query($conn, $sql)) {
-    echo json_encode(["status" => "ok", "message" => "Salvo no MySQL com sucesso"]);
+    
+    // Comando para deletar tudo que não estiver entre os 250 registros mais recentes
+    $sqlDelete = "DELETE FROM velotabe 
+                  WHERE id NOT IN (
+                      SELECT id FROM (
+                          SELECT id FROM velotabe ORDER BY id DESC LIMIT 20
+                      ) temp_table
+                  )";
+    
+    // Executa a limpeza silenciosamente no fundo
+    mysqli_query($conn, $sqlDelete);
+
+    echo json_encode(["status" => "ok", "message" => "Salvo e banco otimizado com sucesso"]);
 } else {
     http_response_code(500);
     echo json_encode(["status" => "error", "message" => "Erro ao inserir no banco"]);
